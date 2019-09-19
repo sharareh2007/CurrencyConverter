@@ -1,11 +1,8 @@
 package com.example.shararehcurrencyconverter.RecyclerView;
 
 import android.content.Context;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
-import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -20,8 +17,6 @@ import com.example.shararehcurrencyconverter.Model.Currency;
 import com.example.shararehcurrencyconverter.Model.Rate;
 import com.example.shararehcurrencyconverter.R;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.CustomViewHolder> {
@@ -29,11 +24,7 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
     private List<Currency> currencies;
     private List<Rate> rates;
     static double SourceRate;
-
-    public void updateData(List<Rate> rates) {
-
-
-    }
+    private RecyclerView recyclerView;
 
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {
@@ -47,7 +38,7 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
             currencyCode = view.findViewById(R.id.currencyCode);
             currencyName = view.findViewById(R.id.currencyName);
             currencyRate = view.findViewById(R.id.currencyRate);
-            currencyRate.setInputType(InputType.TYPE_CLASS_NUMBER);
+            // currencyRate.setInputType(InputType.TYPE_CLASS_NUMBER);
             currencyImage = (ImageView) view.findViewById(R.id.currencyImage);
 
             final CustomViewHolder holder = this;
@@ -74,7 +65,6 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
             });
 
 
-           // currencyRate.addTextChangedListener(new MyTextWatcher(holder));
 
             currencyRate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
@@ -83,17 +73,17 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
                         currencyRate.addTextChangedListener(new MyTextWatcher(holder));
                 }
 
-
             }});
 
         }
 
     }
 
-    public CurrenciesAdapter(List<Currency> currencies, List<Rate> rates, Context context) {
+    public CurrenciesAdapter(List<Currency> currencies, List<Rate> rates, Context context, RecyclerView recyclerView) {
         this.currencies = currencies;
         this.rates = rates;
         this.context = context;
+        this.recyclerView = recyclerView;
     }
 
     @Override
@@ -110,11 +100,6 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
         holder.currencyCode.setText(currency.getCurrencyCode());
         holder.currencyName.setText(currency.getCurrencyName());
         holder.currencyRate.setText(String.valueOf(currency.getCurrencyRateEditText()));
-
-       // holder.currencyRate.addTextChangedListener(new MyTextWatcher(holder));
-
-
-
         int resourceID = context.getResources().getIdentifier(currency.getCurrencyImage(), "drawable", context.getPackageName());
         holder.currencyImage.setImageResource(resourceID);
     }
@@ -139,43 +124,27 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
 
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            //updatedCurrency.clear();
-            //  if (!charSequence.toString().isEmpty()) {
+            if (charSequence != "") {
             double sourcePrice = Double.parseDouble(String.valueOf(charSequence));
-            //finalprice = (int) (Math.round(finalprice * 10000)) / 10000.0;
-
-
-           // currencies.get(this.holder.getAdapterPosition()).setEditTextValue(String.format("%.4f", sourcePrice));
             SourceRate = Double.parseDouble(String.valueOf(rates.get(this.holder.getAdapterPosition()).getCurrencyRate()));
 
-            currencies.add(this.holder.getAdapterPosition(),new Currency(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyCode()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyName()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyImage()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()),String.format("%.2f", sourcePrice)));
-            currencies.remove(this.holder.getAdapterPosition()+1);
-            notifyItemChanged(this.holder.getAdapterPosition());
-            // updatedCurrency.add(new Currency(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyCode()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyName()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyImage()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()),String.format("%.2f", sourcePrice)));
-            for (int j = 0; j < currencies.size(); j++) {
-                // if (j != this.holder.getAdapterPosition()) {
+                for (int j = 0; j < currencies.size(); j++) {
                 double DestinationRate = Double.parseDouble(String.valueOf(rates.get(j).getCurrencyRate()));
                 double finalprice = (sourcePrice / SourceRate) * DestinationRate;
-                // String ttests = Double.toString(finalprice);
-                String ttests = String.format("%.4f", finalprice);
-                currencies.add(j,new Currency(String.valueOf(currencies.get(j).getCurrencyCode()), String.valueOf(currencies.get(j).getCurrencyName()), String.valueOf(currencies.get(j).getCurrencyImage()), String.valueOf(currencies.get(j).getCurrencyRate()), ttests));
-                currencies.remove(j+1);
-                notifyItemChanged(j);
+                    // String ttests = String.format("%.4f", finalprice);
+                    currencies.get(j).setEditTextValue(String.valueOf(finalprice));
+                }
 
-              //  notifyItemChanged(j);
-                // currencies.get(j).setEditTextValue(ttests);
-
-                //    }
-            }
-
-
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyDataSetChanged();
+                    }
+                });
         }
-
+        }
         @Override
         public void afterTextChanged(Editable editable) {
-
-          //  notifyDataSetChanged();
 
         }
 

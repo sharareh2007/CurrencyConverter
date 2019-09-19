@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_view);
-        mAdapter = new CurrenciesAdapter(currencies, rates, this);
+        mAdapter = new CurrenciesAdapter(currencies, rates, this,recyclerView);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
                                 new ReadAPI(currencies, rates, mAdapter, true).execute();
-                                mAdapter = new CurrenciesAdapter(currencies, rates, context);
+                                mAdapter = new CurrenciesAdapter(currencies, rates, context,recyclerView);
                                 recyclerView.setAdapter(mAdapter);
                                 mAdapter.notifyDataSetChanged();
                             }
