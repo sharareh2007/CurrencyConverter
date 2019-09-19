@@ -1,6 +1,7 @@
 package com.example.shararehcurrencyconverter.Controller;
 
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.shararehcurrencyconverter.Model.Rate;
 import com.example.shararehcurrencyconverter.RecyclerView.CurrenciesAdapter;
 import com.example.shararehcurrencyconverter.RecyclerView.DividerItemDecoration;
 import com.example.shararehcurrencyconverter.RecyclerView.RecyclerItemListener;
@@ -27,6 +29,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     List<Currency> currencies = new ArrayList<>();
+    List<Rate> rates = new ArrayList<>();
+    Context context;
 
     private RecyclerView recyclerView;
     private CurrenciesAdapter mAdapter;
@@ -36,13 +40,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         recyclerView = findViewById(R.id.recycler_view);
-        mAdapter = new CurrenciesAdapter(currencies, this);
+        mAdapter = new CurrenciesAdapter(currencies, rates, this);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getApplicationContext());
         recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
-
-      // new ReadAPI(currencies, mAdapter).execute();
+        context = this;
+        new ReadAPI(currencies, rates, mAdapter, false).execute();
         Thread t = new Thread() {
             @Override
             public void run() {
@@ -52,10 +56,9 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                if (currencies!=null)
-                                    currencies.clear();
-                                new ReadAPI(currencies, mAdapter).execute();
-
+                                new ReadAPI(currencies, rates, mAdapter, true).execute();
+                                mAdapter = new CurrenciesAdapter(currencies, rates, context);
+                                recyclerView.setAdapter(mAdapter);
                                 mAdapter.notifyDataSetChanged();
                             }
                         });
@@ -68,11 +71,6 @@ public class MainActivity extends AppCompatActivity {
         };
 
         t.start();
-
-
-
-
-
 
 
         recyclerView.setHasFixedSize(true);
