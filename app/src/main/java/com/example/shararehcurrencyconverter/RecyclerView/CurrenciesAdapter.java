@@ -139,25 +139,39 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
             //  if (!charSequence.toString().isEmpty()) {
             double sourcePrice = Double.parseDouble(String.valueOf(charSequence));
             //finalprice = (int) (Math.round(finalprice * 10000)) / 10000.0;
-            currencies.get(this.holder.getAdapterPosition()).setEditTextValue(String.format("%.4f", sourcePrice));
+
+
+           // currencies.get(this.holder.getAdapterPosition()).setEditTextValue(String.format("%.4f", sourcePrice));
             SourceRate = Double.parseDouble(String.valueOf(rates.get(this.holder.getAdapterPosition()).getCurrencyRate()));
+
+            currencies.add(this.holder.getAdapterPosition(),new Currency(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyCode()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyName()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyImage()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()),String.format("%.2f", sourcePrice)));
+            currencies.remove(this.holder.getAdapterPosition());
+            //notifyItemChanged(this.holder.getAdapterPosition());
             // updatedCurrency.add(new Currency(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyCode()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyName()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyImage()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()),String.format("%.2f", sourcePrice)));
-            for (int j = 0; j < currencies.size(); j++) {
+           /* for (int j = 0; j < currencies.size(); j++) {
                 // if (j != this.holder.getAdapterPosition()) {
                 double DestinationRate = Double.parseDouble(String.valueOf(rates.get(j).getCurrencyRate()));
                 double finalprice = (sourcePrice / SourceRate) * DestinationRate;
                 // String ttests = Double.toString(finalprice);
                 String ttests = String.format("%.4f", finalprice);
-                //updatedCurrency.add(new Currency(String.valueOf(currencies.get(j).getCurrencyCode()), String.valueOf(currencies.get(j).getCurrencyName()), String.valueOf(currencies.get(j).getCurrencyImage()), String.valueOf(currencies.get(j).getCurrencyRate()), ttests));
-                currencies.get(j).setEditTextValue(ttests);
+
+                currencies.remove(j);
+
+                currencies.add(new Currency(String.valueOf(currencies.get(j).getCurrencyCode()), String.valueOf(currencies.get(j).getCurrencyName()), String.valueOf(currencies.get(j).getCurrencyImage()), String.valueOf(currencies.get(j).getCurrencyRate()), ttests));
+
+              //  notifyItemChanged(j);
+                // currencies.get(j).setEditTextValue(ttests);
 
                 //    }
-            }
+            }*/
+
 
         }
 
         @Override
         public void afterTextChanged(Editable editable) {
+
+          //  notifyDataSetChanged();
 
         }
 
