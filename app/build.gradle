@@ -12,10 +12,20 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        config {
+            keyAlias 'currency'
+            keyPassword 'currencycurrency'
+            storeFile file('../keys/santander_keystore')
+            storePassword 'currencycurrency'
+        }
+    }
+
 
     buildTypes {
         release {
             minifyEnabled true
+            signingConfig signingConfigs.config
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
@@ -29,9 +39,6 @@ android {
         }
 
     }
-
-
-
 
 }
 
