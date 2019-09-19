@@ -5,6 +5,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,8 +26,9 @@ import java.util.List;
 public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.CustomViewHolder> {
     private final Context context;
     private List<Currency> currencies;
+    static double SourceRate;
+   //List<Currency> updatedCurrency = new ArrayList<>();
 
-    List<Currency> updatedCurrency = new ArrayList<>();
     public class CustomViewHolder extends RecyclerView.ViewHolder {
         public TextView currencyCode, currencyName;
         public EditText currencyRate;
@@ -38,25 +40,23 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
             currencyCode = view.findViewById(R.id.currencyCode);
             currencyName = view.findViewById(R.id.currencyName);
             currencyRate = view.findViewById(R.id.currencyRate);
+            currencyRate.setInputType(InputType.TYPE_CLASS_NUMBER);
             currencyImage = (ImageView) view.findViewById(R.id.currencyImage);
-            final CustomViewHolder test = this;
+            final CustomViewHolder holder = this;
             view.clearFocus();
             currencyRate.setOnTouchListener(new View.OnTouchListener() {
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
-
                     currencyRate.setFocusableInTouchMode(true);
                     currencyRate.requestFocus();
                     currencyRate.setFocusable(true);
                     InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-
-
                     return true;
                 }
             });
 
-
+            currencyRate.addTextChangedListener(new MyTextWatcher(holder));
         }
 
     }
@@ -81,7 +81,9 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
         holder.currencyName.setText(currency.getCurrencyName());
         holder.currencyRate.setText(String.valueOf(currency.getCurrencyRateEditText()));
 
-        holder.currencyRate.addTextChangedListener(new MyTextWatcher(holder));
+        //  notifyDataSetChanged();
+        //   holder.currencyRate.addTextChangedListener(new MyTextWatcher(holder));
+
         int resourceID = context.getResources().getIdentifier(currency.getCurrencyImage(), "drawable", context.getPackageName());
         holder.currencyImage.setImageResource(resourceID);
     }
@@ -107,25 +109,25 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
         @Override
         public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-          //  if (!charSequence.toString().isEmpty()) {
-                double finalprice = Double.parseDouble(String.valueOf(charSequence));
-                finalprice = (int) (Math.round(finalprice * 10000)) / 10000.0;
-               currencies.get(this.holder.getAdapterPosition()).setEditTextValue(Double.toString(finalprice));
-                double Rate1 = Double.parseDouble(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()));
-
-                for (int j = 0; j < currencies.size(); j++) {
-                  //  if (j != this.holder.getAdapterPosition()) {
-                        double Rate2 = Double.parseDouble(String.valueOf(currencies.get(j).getCurrencyRate()));
-
-                        finalprice = (int) (Math.round((finalprice / Rate2) * Rate1 * 10000)) / 10000.0;
-                        String ttests = Double.toString(finalprice);
-                     //   currencies.get(j).setEditTextValue(ttests);
-             //       }
-
-                }
-
-
-           // }
+            //updatedCurrency.clear();
+            //  if (!charSequence.toString().isEmpty()) {
+            double sourcePrice = Double.parseDouble(String.valueOf(charSequence));
+            //finalprice = (int) (Math.round(finalprice * 10000)) / 10000.0;
+            currencies.get(this.holder.getAdapterPosition()).setEditTextValue(String.format("%.4f", sourcePrice));
+            SourceRate = Double.parseDouble(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()));
+            // updatedCurrency.add(new Currency(String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyCode()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyName()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyImage()), String.valueOf(currencies.get(this.holder.getAdapterPosition()).getCurrencyRate()),String.format("%.2f", sourcePrice)));
+            for (int j = 0; j < currencies.size(); j++) {
+                // if (j != this.holder.getAdapterPosition()) {
+                double DestinationRate = Double.parseDouble(String.valueOf(currencies.get(j).getCurrencyRate()));
+                double finalprice = (sourcePrice / SourceRate) * DestinationRate;
+                // String ttests = Double.toString(finalprice);
+                String ttests = String.format("%.4f", finalprice);
+                //updatedCurrency.add(new Currency(String.valueOf(currencies.get(j).getCurrencyCode()), String.valueOf(currencies.get(j).getCurrencyName()), String.valueOf(currencies.get(j).getCurrencyImage()), String.valueOf(currencies.get(j).getCurrencyRate()), ttests));
+                currencies.get(j).setEditTextValue(ttests);
+                //    }
+            }
+            //  notifyDataSetChanged();
+            // }
         }
 
         @Override
