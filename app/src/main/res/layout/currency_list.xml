@@ -52,9 +52,9 @@
         android:gravity="right|top"
         android:lineSpacingExtra="5sp"
         android:textAppearance="@style/amount"
-        android:translationY="-2.28sp"
-        />
-
+        android:ems="10"
+        android:focusable="auto"
+        android:inputType="numberDecimal" />
 
     <ImageView
         android:id="@+id/currencyImage"
