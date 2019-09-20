@@ -2,6 +2,8 @@ package com.example.shararehcurrencyconverter.Controller;
 
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +24,7 @@ import com.example.shararehcurrencyconverter.Model.Currency;
 import com.example.shararehcurrencyconverter.R;
 import com.example.shararehcurrencyconverter.REST.ReadAPI;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -46,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(mAdapter);
         context = this;
+        if(hasConnectivity()) {
         new ReadAPI(currencies, rates, mAdapter, false).execute();
         Thread t = new Thread() {
             @Override
@@ -59,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
                                 new ReadAPI(currencies, rates, mAdapter, true).execute();
                                 mAdapter = new CurrenciesAdapter(currencies, rates, context,recyclerView);
                                 recyclerView.setAdapter(mAdapter);
-                                mAdapter.notifyDataSetChanged();
+                                mAdapter.update();
                             }
                         });
 
@@ -98,6 +102,20 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView.addItemDecoration(
                 new DividerItemDecoration(ContextCompat.getDrawable(getApplicationContext(), R.drawable.item_seperator)));
+    }
+        else
+            try {
+                throw new IOException("no connectivity");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+    }
+
+    protected boolean hasConnectivity()
+    {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
 }
