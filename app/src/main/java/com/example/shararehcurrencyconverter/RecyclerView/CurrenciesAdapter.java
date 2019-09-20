@@ -26,6 +26,24 @@ public class CurrenciesAdapter extends RecyclerView.Adapter<CurrenciesAdapter.Cu
     static double SourceRate;
     private RecyclerView recyclerView;
 
+    public void update() {
+
+        double sourcePrice = Double.parseDouble(String.valueOf(currencies.get(0).getCurrencyRateEditText()));
+        SourceRate = Double.parseDouble(String.valueOf(currencies.get(0).getCurrencyRate()));
+
+        for (int j = 0; j < currencies.size(); j++) {
+            double DestinationRate = Double.parseDouble(String.valueOf(rates.get(j).getCurrencyRate()));
+            double finalprice = (sourcePrice / SourceRate) * DestinationRate;
+            currencies.get(j).setEditTextValue(String.valueOf(finalprice));
+        }
+        recyclerView.post(new Runnable() {
+            @Override
+            public void run() {
+                notifyDataSetChanged();
+            }
+        });
+    }
+
 
     public class CustomViewHolder extends RecyclerView.ViewHolder {
         public TextView currencyCode, currencyName;
